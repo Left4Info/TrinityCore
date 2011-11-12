@@ -245,7 +245,8 @@ void LFGMgr::Update(uint32 diff)
                     UpdateProposal(m_lfgProposalId, guid, true);
             }
             else
-                currentQueue.push_back(frontguid);         // Lfg group not found, add this group to the queue.
+                if (!(std::find(currentQueue.begin(), currentQueue.end(), frontguid) != currentQueue.end())) //already in queue?
+                    currentQueue.push_back(frontguid);         // Lfg group not found, add this group to the queue.
             firstNew.clear();
         }
     }
@@ -1513,7 +1514,9 @@ void LFGMgr::RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType t
     for (LfgGuidList::const_iterator it = pProposal->queues.begin(); it != pProposal->queues.end(); ++it)
     {
         uint64 guid = *it;
-        AddToQueue(guid, team);
+        LfgGuidList& currentQueue = m_currentQueue[team]; 
+        currentQueue.push_front(guid);         //Add GUID for high priority 
+        AddToQueue(guid, team);                //We have to add each GUID in newQueue to check for a new groups
     }
 
     delete pProposal;
