@@ -29,15 +29,15 @@ OutdoorPvPNA::OutdoorPvPNA()
     m_TypeId = OUTDOOR_PVP_NA;
 }
 
-void OutdoorPvPNA::HandleKillImpl(Player* player, Unit* killed)
+void OutdoorPvPNA::HandleKill(Player* killer, Unit* killed)
 {
-    if (killed->GetTypeId() == TYPEID_PLAYER && player->GetTeam() != killed->ToPlayer()->GetTeam())
+    if (killed->GetTypeId() == TYPEID_PLAYER && killer->GetTeam() != killed->ToPlayer()->GetTeam())
     {
-        player->KilledMonsterCredit(NA_CREDIT_MARKER, 0); // 0 guid, btw it isn't even used in killedmonster function :S
-        if (player->GetTeam() == ALLIANCE)
-            player->CastSpell(player, NA_KILL_TOKEN_ALLIANCE, true);
+        killer->KilledMonsterCredit(NA_CREDIT_MARKER, 0); // 0 guid, btw it isn't even used in killedmonster function :S
+        if (killer->GetTeam() == ALLIANCE)
+            killer->CastSpell(killer, NA_KILL_TOKEN_ALLIANCE, true);
         else
-            player->CastSpell(player, NA_KILL_TOKEN_HORDE, true);
+            killer->CastSpell(killer, NA_KILL_TOKEN_HORDE, true);
     }
 }
 

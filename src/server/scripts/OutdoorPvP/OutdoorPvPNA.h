@@ -326,7 +326,7 @@ class OutdoorPvPNA : public OutdoorPvP
 
         void SendRemoveWorldStates(Player* player);
 
-        void HandleKillImpl(Player* player, Unit* killed);
+        void HandleKill(Player* killer, Unit* killed);
 
     private:
 
