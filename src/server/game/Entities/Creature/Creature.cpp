@@ -48,6 +48,7 @@
 #include "Vehicle.h"
 #include "SpellAuraEffects.h"
 #include "Group.h"
+#include "Spell.h"
 // apply implementation of the singletons
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
@@ -653,6 +654,23 @@ void Creature::DoFleeToGetAssistance()
 
     if (HasAuraType(SPELL_AURA_PREVENTS_FLEEING))
         return;
+
+    for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_AUTOREPEAT_SPELL; ++i)
+    {
+        if (Spell* spell = GetCurrentSpell(CurrentSpellTypes(i)))
+        {
+            SpellInfo const* curSpellInfo = spell->m_spellInfo;
+            // check if we can interrupt spell
+            if ((spell->getState() == SPELL_STATE_CASTING
+                || (spell->getState() == SPELL_STATE_PREPARING && spell->GetCastTime() > 0.0f))
+                && curSpellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE
+                && ((i == CURRENT_GENERIC_SPELL && curSpellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT)
+                || (i == CURRENT_CHANNELED_SPELL && curSpellInfo->ChannelInterruptFlags & CHANNEL_INTERRUPT_FLAG_INTERRUPT)))
+            {
+                InterruptSpell(CurrentSpellTypes(i), false);
+            }
+        }
+    }
 
     float radius = sWorld->getFloatConfig(CONFIG_CREATURE_FAMILY_FLEE_ASSISTANCE_RADIUS);
     if (radius >0)
