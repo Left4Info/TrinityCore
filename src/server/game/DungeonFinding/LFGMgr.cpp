@@ -383,7 +383,10 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
         else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
             locktype = LFG_LOCKSTATUS_RAID_LOCKED;
         else if (dungeon->difficulty > DUNGEON_DIFFICULTY_NORMAL && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
-            locktype = LFG_LOCKSTATUS_RAID_LOCKED;
+        {
+            if (!player->GetGroup() || !player->GetGroup()->isLFGGroup() || GetDungeon(player->GetGroup()->GetGUID(),true) != dungeon->ID || GetState(player->GetGroup()->GetGUID()) != LFG_STATE_DUNGEON)
+                locktype = LFG_LOCKSTATUS_RAID_LOCKED;
+        }
         else if (dungeon->minlevel > level)
             locktype = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
         else if (dungeon->maxlevel < level)
@@ -1080,6 +1083,11 @@ void LFGMgr::UpdateRoleCheck(uint64 gguid, uint64 guid /* = 0 */, uint8 roles /*
         }
 
         m_QueueInfoMap[gguid] = pqInfo;
+        if(GetState(gguid) != LFG_STATE_NONE)
+        {
+            LfgGuidList& currentQueue = m_currentQueue[team]; 
+            currentQueue.push_front(gguid);         
+        }
         AddToQueue(gguid, team);
     }
 
@@ -1825,6 +1833,7 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
 
     // Give rewards
     sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::RewardDungeonDoneFor: [" UI64FMTD "] done dungeon %u, %s previously done.", player->GetGUID(), GetDungeon(gguid), index > 0 ? " " : " not");
+    player->CastSpell(player,LFG_SPELL_DUNGEON_COOLDOWN,true);
     player->GetSession()->SendLfgPlayerReward(dungeon->Entry(), GetDungeon(gguid, false), index, reward, qReward);
 }
 
