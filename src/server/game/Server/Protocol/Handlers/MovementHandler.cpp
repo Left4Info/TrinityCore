@@ -373,6 +373,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
                 if (plMover->isAlive())
                 {
                     plMover->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
+                    plMover->SetMovement(MOVE_ROOT);
                     // player can be alive if GM/etc
                     // change the death state to CORPSE to prevent the death timer from
                     // starting in the next player update

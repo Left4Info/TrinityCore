@@ -2854,7 +2854,10 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
         if (apply)
             data.Initialize(SMSG_MOVE_SET_CAN_FLY, 12);
         else
+        {
             data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 12);
+            player->SetFallInformation(0,player->GetPositionZ());
+        }
         data.append(target->GetPackGUID());
         data << uint32(0);                                      // unk
         player->SendDirectMessage(&data);

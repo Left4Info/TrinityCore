@@ -5184,10 +5184,10 @@ bool Player::FallGround(uint8 FallMode)
 
 void Player::KillPlayer()
 {
-    if (IsFlying() && !GetTransport())
+    /*if (IsFlying() && !GetTransport())
         FallGround();
 
-    SetMovement(MOVE_ROOT);
+    SetMovement(MOVE_ROOT);*/
 
     StopMirrorTimers();                                     //disable timers(bars)
 
