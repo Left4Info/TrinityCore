@@ -1416,6 +1416,13 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
         // Teleport Player
         for (LfgPlayerList::const_iterator it = playersToTeleport.begin(); it != playersToTeleport.end(); ++it)
             TeleportPlayer(*it, false);
+        
+        for (LfgPlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
+        {
+            Player* player = (*it);
+            if (player)
+                player->UpdateVisibilityForPlayer();
+        }
 
         // Update group info
         grp->SendUpdate();
