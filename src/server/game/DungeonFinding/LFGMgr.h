@@ -345,6 +345,8 @@ class LFGMgr
         uint32 m_NumWaitTimeHealer;                        ///< Num of players used to calc healers wait time
         uint32 m_NumWaitTimeDps;                           ///< Num of players used to calc dps wait time
         LfgDungeonMap m_CachedDungeonMap;                  ///< Stores all dungeons by groupType
+        uint32 m_teleport_delay;                           ///< Global Teleport Delay
+        LfgPlayerList m_playersToTeleport;                 ///< Teleport with next Update
         // Reward System
         LfgRewardMap m_RewardMap;                          ///< Stores rewards for random dungeons
         // Queue
