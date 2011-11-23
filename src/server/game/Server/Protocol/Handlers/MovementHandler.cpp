@@ -327,10 +327,6 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
         movementInfo.t_seat = -1;
     }
 
-    // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
-    if (opcode == MSG_MOVE_FALL_LAND && plMover && !plMover->isInFlight())
-        plMover->HandleFall(movementInfo);
-
     if (plMover && ((movementInfo.flags & MOVEMENTFLAG_SWIMMING) != 0) != plMover->IsInWater())
     {
         // now client not include swimming flag in case jumping under water
@@ -356,6 +352,10 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     }
 
     mover->UpdatePosition(movementInfo.pos);
+    
+    // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
+    if (opcode == MSG_MOVE_FALL_LAND && plMover && !plMover->isInFlight())
+        plMover->HandleFall(movementInfo);
 
     if (plMover)                                            // nothing is charmed, or player charmed
     {
