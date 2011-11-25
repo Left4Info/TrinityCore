@@ -1182,6 +1182,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     // Skip if m_originalCaster not avaiable
     if (!caster)
         return;
+    
+    if ((m_spellInfo->IsAOE() || m_spellInfo->Id == 52212) && caster->GetTypeId() == TYPEID_PLAYER && unit->IsPvP() && !caster->IsPvP())
+        return;
 
     SpellMissInfo missInfo = target->missCondition;
 
