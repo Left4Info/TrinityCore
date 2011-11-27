@@ -822,7 +822,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
     {
         uint64 guid = (*it);
         LfgQueueInfoMap::iterator itQueue = m_QueueInfoMap.find(guid);
-        if (itQueue == m_QueueInfoMap.end())
+        if (itQueue == m_QueueInfoMap.end() || GetState(guid) != LFG_STATE_QUEUED)
         {
             sLog->outError("LFGMgr::CheckCompatibility: [" UI64FMTD "] is not queued but listed as queued!", (*it));
             RemoveFromQueue(guid);
