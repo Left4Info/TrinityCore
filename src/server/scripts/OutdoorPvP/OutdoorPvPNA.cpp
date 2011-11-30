@@ -31,7 +31,7 @@ OutdoorPvPNA::OutdoorPvPNA()
 
 void OutdoorPvPNA::HandleKill(Player* killer, Unit* killed)
 {
-    if (killed->GetTypeId() == TYPEID_PLAYER && killer->GetTeam() != killed->ToPlayer()->GetTeam())
+    if (killed->GetTypeId() == TYPEID_PLAYER && killer->GetTeam() != killed->ToPlayer()->GetTeam() && killer->GetAreaId() == 3628)
     {
         killer->KilledMonsterCredit(NA_CREDIT_MARKER, 0); // 0 guid, btw it isn't even used in killedmonster function :S
         if (killer->GetTeam() == ALLIANCE)
