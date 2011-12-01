@@ -146,15 +146,6 @@ void LFGMgr::Update(uint32 diff)
     m_update = false;
     time_t currTime = time(NULL);
 
-    // Teleport new Players
-    if (m_teleport_delay < 1)
-    {
-        for (LfgPlayerList::const_iterator it = m_playersToTeleport.begin(); it != m_playersToTeleport.end(); ++it)
-            TeleportPlayer(*it, false);        
-    
-        m_playersToTeleport.clear();
-    } else m_teleport_delay--;
-
     // Remove obsolete role checks
     for (LfgRoleCheckMap::iterator it = m_RoleChecks.begin(); it != m_RoleChecks.end();)
     {
@@ -1422,11 +1413,9 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
             RemoveFromQueue(guid);
         }
 
-        m_teleport_delay = 50; //Set global teleport Delay
-
         // Teleport Player
         for (LfgPlayerList::const_iterator it = playersToTeleport.begin(); it != playersToTeleport.end(); ++it)
-            this->m_playersToTeleport.push_back(*it);
+            TeleportPlayer(*it, false);
 
         // Update group info
         grp->SendUpdate();

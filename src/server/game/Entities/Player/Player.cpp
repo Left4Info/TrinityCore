@@ -7395,6 +7395,22 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
     }
 
+    // group update
+    if (GetGroup())
+    {
+        SetGroupUpdateFlag(GROUP_UPDATE_FULL);
+        Group* grp = GetGroup();
+        if (m_zoneUpdateId != newZone && grp->isLFGGroup() && GetMap()->IsDungeon())
+            {
+                //sLFGMgr->DelayedGroupMemberNamesUpdate(this);
+                for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+                {
+                    Player* tempplr = itr->getSource();
+                    GetSession()->SendNameQueryOpcode(tempplr->GetGUID());
+                }
+            }
+    }
+
     m_zoneUpdateId    = newZone;
     m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
 
@@ -7481,10 +7497,6 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     // recent client version not send leave/join channel packets for built-in local channels
     UpdateLocalChannels(newZone);
-
-    // group update
-    if (GetGroup())
-        SetGroupUpdateFlag(GROUP_UPDATE_FULL);
 
     UpdateZoneDependentAuras(newZone);
 }
