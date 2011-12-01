@@ -928,6 +928,39 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
     if (numPlayers != MAXGROUPSIZE)
     {
         sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::CheckCompatibility: (%s) Compatibles but not match. Players(%u)", strGuids.c_str(), numPlayers);
+        uint8 Tanks_Needed = LFG_TANKS_NEEDED;
+        uint8 Healers_Needed = LFG_HEALERS_NEEDED;
+        uint8 Dps_Needed = LFG_DPS_NEEDED;
+        for (LfgQueueInfoMap::const_iterator itQueue = pqInfoMap.begin(); itQueue != pqInfoMap.end(); ++itQueue)
+            {
+                LfgQueueInfo* queue = itQueue->second;
+                for (LfgRolesMap::const_iterator itPlayer = queue->roles.begin(); itPlayer != queue->roles.end(); ++itPlayer)
+                {
+                    uint8 roles = itPlayer->second;
+                    if ((roles & ROLE_TANK) && Tanks_Needed > 0)
+                        --Tanks_Needed;
+                    else if ((roles & ROLE_HEALER) && Healers_Needed > 0)
+                        --Healers_Needed;
+                    else if ((roles & ROLE_DAMAGE) && Dps_Needed > 0)
+                        --Dps_Needed;
+                }
+            }
+        for (PlayerSet::const_iterator itPlayers = players.begin(); itPlayers != players.end(); ++itPlayers)
+        {
+            for (LfgQueueInfoMap::const_iterator itQueue = pqInfoMap.begin(); itQueue != pqInfoMap.end(); ++itQueue)
+            {
+                LfgQueueInfo* queue = itQueue->second;
+                if (!queue)
+                    continue;
+                for (LfgRolesMap::const_iterator itPlayer = queue->roles.begin(); itPlayer != queue->roles.end(); ++itPlayer)
+                    if (*itPlayers == ObjectAccessor::FindPlayer(itPlayer->first))
+                    {
+                        queue->tanks = Tanks_Needed;
+                        queue->healers = Healers_Needed;
+                        queue->dps = Dps_Needed;
+                    }
+            }
+        }
         return true;
     }
     sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::CheckCompatibility: (%s) MATCH! Group formed", strGuids.c_str());
