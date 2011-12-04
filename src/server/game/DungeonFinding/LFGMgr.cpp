@@ -1479,6 +1479,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
                     break;
                 }
             }
+            m_teleport.push_back(pguid);
             grp->SetLfgRoles(pguid, pProposal->players[pguid]->role);
             SetState(pguid, LFG_STATE_DUNGEON);
             _SaveToDB(pguid);
@@ -2022,6 +2023,17 @@ const std::string& LFGMgr::GetComment(uint64 guid)
 {
     sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::GetComment: [" UI64FMTD "]", guid);
     return m_Players[guid].GetComment();
+}
+
+bool LFGMgr::GetIsTeleported(uint64 pguid)
+{
+    for(LfgGuidList::iterator it = m_teleport.begin(); it != m_teleport.end(); ++it)
+        if (*it == pguid)
+        {
+            m_teleport.erase(it);
+            return true;
+        }
+    return false;
 }
 
 const LfgDungeonSet& LFGMgr::GetSelectedDungeons(uint64 guid)

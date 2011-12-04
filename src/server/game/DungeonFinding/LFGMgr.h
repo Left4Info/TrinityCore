@@ -299,6 +299,7 @@ class LFGMgr
         void RemoveGroupData(uint64 guid);
         uint8 GetKicksLeft(uint64 gguid);
         uint8 GetVotesNeeded(uint64 gguid);
+        bool GetIsTeleported(uint64 pguid);
         void SetRoles(uint64 guid, uint8 roles);
 
     private:
@@ -353,6 +354,7 @@ class LFGMgr
         LfgQueueInfoMap m_QueueInfoMap;                    ///< Queued groups
         LfgGuidListMap m_currentQueue;                     ///< Ordered list. Used to find groups
         LfgGuidListMap m_newToQueue;                       ///< New groups to add to queue
+        LfgGuidList m_teleport;                            ///< Players being teleported
         LfgCompatibleMap m_CompatibleMap;                  ///< Compatible dungeons
         // Rolecheck - Proposal - Vote Kicks
         LfgRoleCheckMap m_RoleChecks;                      ///< Current Role checks

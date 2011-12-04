@@ -7405,13 +7405,13 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     {
         SetGroupUpdateFlag(GROUP_UPDATE_FULL);
         Group* grp = GetGroup();
-        if (m_zoneUpdateId != newZone && grp->isLFGGroup() && GetMap()->IsDungeon())
+        if (GetSession() && grp->isLFGGroup() && sLFGMgr->GetIsTeleported(GetGUID()))
             {
-                //sLFGMgr->DelayedGroupMemberNamesUpdate(this);
                 for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
                 {
                     Player* tempplr = itr->getSource();
-                    GetSession()->SendNameQueryOpcode(tempplr->GetGUID());
+                    if (tempplr)
+                        GetSession()->SendNameQueryOpcode(tempplr->GetGUID());
                 }
             }
     }
