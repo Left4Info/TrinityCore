@@ -287,6 +287,8 @@ class LFGMgr
 
         void InitializeLockedDungeons(Player* player);
 
+        void _LoadFromDB(uint64 dbguid, uint64 group);
+        void _SaveToDB(uint64 guid);
         void SetComment(uint64 guid, const std::string& comment);
         const LfgLockMap& GetLockedDungeons(uint64 guid);
         LfgState GetState(uint64 guid);

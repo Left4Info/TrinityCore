@@ -72,6 +72,58 @@ LFGMgr::~LFGMgr()
         delete it->second;
 }
 
+void LFGMgr::_LoadFromDB(uint64 dbguid, uint64 group)
+{
+    uint64 guid = dbguid;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_LFG_DATA);
+    stmt->setUInt64(0, guid);
+    stmt->setUInt8(1, group ? 1 : 0);
+    if (group)
+        guid = group;
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+    {
+        SetDungeon(guid, (*result)[0].GetUInt32());
+        if ((*result)[1].GetUInt8() == 5) 
+            SetState(guid, LFG_STATE_DUNGEON);
+        else if ((*result)[1].GetUInt8() == 6) 
+            SetState(guid, LFG_STATE_FINISHED_DUNGEON);
+        LfgDungeonSet Dungeons;
+        Dungeons.insert((*result)[2].GetUInt32());
+        SetSelectedDungeons(guid, Dungeons);
+    }
+}
+
+void LFGMgr::_SaveToDB(uint64 guid)
+{    
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DATA);
+    stmt->setUInt64(0, guid);
+    if (IS_GROUP(guid))
+    {
+        stmt->setUInt8(1, 1);
+        if (Group* grp = sGroupMgr->GetGroupByGUID(guid))
+            stmt->setUInt64(0, grp->GetDbStoreId());
+    }
+    else
+        stmt->setUInt8(1, 0);
+    CharacterDatabase.Execute(stmt);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_LFG_DATA);
+    stmt->setUInt64(0, guid);
+    if (IS_GROUP(guid))
+    {
+        stmt->setUInt8(4, 1);
+        if (Group* grp = sGroupMgr->GetGroupByGUID(guid))
+            stmt->setUInt64(0, grp->GetDbStoreId());
+    }
+    else
+        stmt->setUInt8(4, 0);
+    stmt->setUInt32(1, GetDungeon(guid));
+    stmt->setUInt32(2, GetState(guid));
+    stmt->setUInt32(3, 0);
+    uint32 SelectedDungeon = (*GetSelectedDungeons(guid).begin());
+    stmt->setUInt32(3, SelectedDungeon);
+    CharacterDatabase.Execute(stmt);
+}
+
 /// Load rewards for completing dungeons
 void LFGMgr::LoadRewards()
 {
@@ -1429,6 +1481,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
             }
             grp->SetLfgRoles(pguid, pProposal->players[pguid]->role);
             SetState(pguid, LFG_STATE_DUNGEON);
+            _SaveToDB(pguid);
         }
 
         // Set the dungeon difficulty
@@ -1438,6 +1491,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
         uint64 gguid = grp->GetGUID();
         SetDungeon(gguid, dungeon->Entry());
         SetState(gguid, LFG_STATE_DUNGEON);
+        _SaveToDB(gguid);
 
         // Remove players/groups from Queue
         for (LfgGuidList::const_iterator it = pProposal->queues.begin(); it != pProposal->queues.end(); ++it)

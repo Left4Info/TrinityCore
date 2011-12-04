@@ -4921,6 +4921,10 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_GM_TICKETS);
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DATA);
+            stmt->setUInt64(0, guid);
+            stmt->setUInt8(1, 0);
+            trans->Append(stmt);
             trans->PAppend("DELETE FROM item_instance WHERE owner_guid = '%u'", guid);
             trans->PAppend("DELETE FROM character_social WHERE guid = '%u' OR friend='%u'", guid, guid);
             trans->PAppend("DELETE FROM mail WHERE receiver = '%u'", guid);
@@ -4944,6 +4948,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             trans->PAppend("DELETE FROM character_skills WHERE guid = '%u'", guid);
 
             CharacterDatabase.CommitTransaction(trans);
+
             break;
         }
         // The character gets unlinked from the account, the name gets freed up and appears as deleted ingame
@@ -17206,6 +17211,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
 
+    sLFGMgr->_LoadFromDB(GetGUID(), 0);
+
     return true;
 }
 
@@ -18578,6 +18585,9 @@ void Player::SaveToDB()
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
         pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+
+    if (isUsingLfg())
+        sLFGMgr->_SaveToDB(GetGUID());
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state

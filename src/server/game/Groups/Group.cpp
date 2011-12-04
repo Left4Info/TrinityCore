@@ -172,6 +172,9 @@ void Group::LoadGroupFromDB(Field* fields)
        m_raidDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
     else
        m_raidDifficulty = Difficulty(r_diff);
+
+    if (m_groupType & GROUPTYPE_LFG)
+        sLFGMgr->_LoadFromDB(GetDbStoreId(), GetGUID());
 }
 
 void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles)
@@ -626,6 +629,10 @@ void Group::Disband(bool hideDestroy /* = false */)
         CharacterDatabase.CommitTransaction(trans);
         ResetInstances(INSTANCE_RESET_GROUP_DISBAND, false, NULL);
         ResetInstances(INSTANCE_RESET_GROUP_DISBAND, true, NULL);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DATA);
+        stmt->setUInt64(0, m_dbStoreId);
+        stmt->setUInt8(1, 1);
+        CharacterDatabase.Execute(stmt);
 
         sGroupMgr->FreeGroupDbStoreId(this);
     }
