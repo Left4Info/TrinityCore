@@ -964,7 +964,9 @@ bool Item::GemsFitSockets() const
             }
         }
 
-        fits &= (GemColor & SocketColor) ? true : false;
+        if (SocketColor || !GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT))
+            fits &= (GemColor & SocketColor) ? true : false;
+
     }
     return fits;
 }
