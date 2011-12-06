@@ -106,6 +106,8 @@ void LFGMgr::_SaveToDB(uint64 guid)
     else
         stmt->setUInt8(1, 0);
     CharacterDatabase.Execute(stmt);
+    if (!IS_GROUP(guid) && !ObjectAccessor::FindPlayer(guid)->GetGroup())
+        return;
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_LFG_DATA);
     stmt->setUInt64(0, guid);
     if (IS_GROUP(guid))

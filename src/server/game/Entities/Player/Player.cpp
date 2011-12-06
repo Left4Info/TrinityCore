@@ -17211,7 +17211,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
 
-    sLFGMgr->_LoadFromDB(GetGUID(), 0);
+    if (GetGroup())
+        sLFGMgr->_LoadFromDB(GetGUID(), 0);
 
     return true;
 }
